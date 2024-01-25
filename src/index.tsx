@@ -1,4 +1,5 @@
-import { Action, ActionPanel, Grid } from "@raycast/api";
+import { Action, ActionPanel, Color, Icon, Grid } from "@raycast/api";
+
 import { useState, useEffect } from "react";
 import fetch from "node-fetch";
 
@@ -14,15 +15,30 @@ const GifItem = (item) => (
     actions={
       <ActionPanel title="Giphy GIF search">
         <Action.Paste content={item.images.original.url} />
-        <Action.OpenInBrowser url={item.url} />
+        <Action.OpenInBrowser title="View on GIPHY" url={item.url} icon={"command-icon.png"} />
+        {item.user && (
+          <Action.OpenInBrowser
+            icon={{ source: Icon.Crown }}
+            title={`More by @${item.user.display_name}`}
+            url={item.user.profile_url}
+          />
+        )}
         <Action.CopyToClipboard title="Copy URL" content={item.images.original.url} />
       </ActionPanel>
     }
   />
 );
 
+const EmptyView = () => (
+  <Grid.EmptyView
+    title="GIF search powered by GIPHY"
+    message="Search for something that has results"
+    icon={"giphy-logo.png"}
+  />
+);
+
 const Command = () => {
-  const [search, setSearch] = useState("cupcake");
+  const [search, setSearch] = useState("");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -55,7 +71,7 @@ const Command = () => {
       isLoading={loading}
       navigationTitle="Giphy Search"
     >
-      {items.map(GifItem)}
+      {items.length === 0 ? <EmptyView /> : items.map(GifItem)}
     </Grid>
   );
 };
